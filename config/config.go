@@ -103,6 +103,7 @@ type Config struct {
 				Subjects []string
 			}
 		}
+		PluginDir string
 	}
 	Auth struct {
 		Local struct {

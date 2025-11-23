@@ -9,7 +9,7 @@ SOURCES        = $(shell find . -name '*.go' | grep -v /vendor/)
 VERSION       ?= $(shell git describe --tags --always --dirty)
 GOPKGS         = $(shell go list ./... | grep -v /vendor/)
 BUILD_FLAGS   ?=
-LDFLAGS       ?= -X github.com/grepplabs/kafka-proxy/config.Version=$(VERSION) -w -s
+LDFLAGS       ?= -X github.com/livespotty/K-Filtra/config.Version=$(VERSION) -w -s
 TAG           ?= "v0.4.3"
 
 PROTOC_GO_VERSION ?= v1.33

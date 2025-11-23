@@ -2,9 +2,10 @@ package proxy
 
 import (
 	"errors"
+	"time"
+
 	"github.com/grepplabs/kafka-proxy/config"
 	"github.com/grepplabs/kafka-proxy/proxy/protocol"
-	"time"
 )
 
 const (
@@ -42,6 +43,7 @@ type ProcessorConfig struct {
 	AuthServer            *AuthServer
 	ForbiddenApiKeys      map[int16]struct{}
 	ProducerAcks0Disabled bool
+	FilterChain           *FilterChain
 }
 
 type processor struct {
@@ -63,6 +65,7 @@ type processor struct {
 	brokerAddress string
 	// producer will never send request with acks=0
 	producerAcks0Disabled bool
+	filterChain           *FilterChain
 }
 
 func newProcessor(cfg ProcessorConfig, brokerAddress string) *processor {
@@ -107,6 +110,7 @@ func newProcessor(cfg ProcessorConfig, brokerAddress string) *processor {
 		authServer:                 cfg.AuthServer,
 		forbiddenApiKeys:           cfg.ForbiddenApiKeys,
 		producerAcks0Disabled:      cfg.ProducerAcks0Disabled,
+		filterChain:                cfg.FilterChain,
 	}
 }
 
@@ -132,6 +136,7 @@ func (p *processor) RequestsLoop(dst DeadlineWriter, src DeadlineReaderWriter) (
 		localSasl:                  p.localSasl,
 		localSaslDone:              false, // sequential processing - mutex is required
 		producerAcks0Disabled:      p.producerAcks0Disabled,
+		filterChain:                p.filterChain,
 	}
 
 	return ctx.requestsLoop(dst, src)
@@ -151,6 +156,7 @@ type RequestsLoopContext struct {
 	localSaslDone bool
 
 	producerAcks0Disabled bool
+	filterChain           *FilterChain
 }
 
 // used by local authentication
@@ -220,6 +226,7 @@ func (p *processor) ResponsesLoop(dst DeadlineWriter, src DeadlineReader) (readE
 		timeout:                    p.readTimeout,
 		brokerAddress:              p.brokerAddress,
 		buf:                        make([]byte, p.responseBufferSize),
+		filterChain:                p.filterChain,
 	}
 	return ctx.responsesLoop(dst, src)
 }
@@ -231,6 +238,7 @@ type ResponsesLoopContext struct {
 	timeout                    time.Duration
 	brokerAddress              string
 	buf                        []byte // bufSize
+	filterChain                *FilterChain
 }
 
 type ResponseHandler interface {
