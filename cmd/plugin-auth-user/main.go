@@ -4,7 +4,7 @@ import (
 	"flag"
 	"os"
 
-	"github.com/grepplabs/kafka-proxy/plugin/local-auth/shared"
+	"github.com/livespotty/K-Filtra/plugin/local-auth/shared"
 	"github.com/hashicorp/go-plugin"
 	"github.com/sirupsen/logrus"
 )

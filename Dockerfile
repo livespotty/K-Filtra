@@ -6,9 +6,9 @@ ARG VERSION
 
 ENV CGO_ENABLED=0 \
     GO111MODULE=on \
-    LDFLAGS="-X github.com/grepplabs/kafka-proxy/config.Version=${VERSION} -w -s"
+    LDFLAGS="-X github.com/livespotty/K-Filtra/config.Version=${VERSION} -w -s"
 
-WORKDIR /go/src/github.com/grepplabs/kafka-proxy
+WORKDIR /go/src/github.com/livespotty/K-Filtra
 COPY . .
 
 RUN mkdir -p build && \
@@ -21,7 +21,7 @@ RUN apk add --no-cache ca-certificates libcap && \
             --home "/nonexistent" --shell "/sbin/nologin" \
             --no-create-home kafka-proxy
 
-COPY --from=builder /go/src/github.com/grepplabs/kafka-proxy/build /opt/kafka-proxy/bin
+COPY --from=builder /go/src/github.com/livespotty/K-Filtra/build /opt/kafka-proxy/bin
 RUN setcap 'cap_net_bind_service=+ep' /opt/kafka-proxy/bin/kafka-proxy
 
 USER kafka-proxy

@@ -1,7 +1,7 @@
 package shared
 
 import (
-	"github.com/grepplabs/kafka-proxy/pkg/apis"
+	"github.com/livespotty/K-Filtra/pkg/apis"
 	"net/rpc"
 )
 

@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/grepplabs/kafka-proxy/pkg/libs/oidc"
+	"github.com/livespotty/K-Filtra/pkg/libs/oidc"
 	"github.com/stretchr/testify/assert"
 )
 

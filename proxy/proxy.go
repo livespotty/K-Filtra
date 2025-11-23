@@ -9,8 +9,8 @@ import (
 	"sync"
 	"text/template"
 
-	"github.com/grepplabs/kafka-proxy/config"
-	"github.com/grepplabs/kafka-proxy/pkg/libs/util"
+	"github.com/livespotty/K-Filtra/config"
+	"github.com/livespotty/K-Filtra/pkg/libs/util"
 	"github.com/sirupsen/logrus"
 )
 

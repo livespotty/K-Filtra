@@ -3,7 +3,7 @@ package proxy
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/grepplabs/kafka-proxy/proxy/protocol"
+	"github.com/livespotty/K-Filtra/proxy/protocol"
 	"io"
 	"time"
 )

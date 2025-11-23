@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/grepplabs/kafka-proxy/pkg/libs/util"
+	"github.com/livespotty/K-Filtra/pkg/libs/util"
 	"github.com/pkg/errors"
 )
 

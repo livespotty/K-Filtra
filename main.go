@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/grepplabs/kafka-proxy/cmd/kafka-proxy"
-	"github.com/grepplabs/kafka-proxy/cmd/tools"
+	"github.com/livespotty/K-Filtra/cmd/kafka-proxy"
+	"github.com/livespotty/K-Filtra/cmd/tools"
 	"github.com/spf13/cobra"
 	"os"
 )

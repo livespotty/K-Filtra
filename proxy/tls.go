@@ -15,7 +15,7 @@ import (
 	tlsclientconfig "github.com/grepplabs/cert-source/tls/client/config"
 	tlsserver "github.com/grepplabs/cert-source/tls/server"
 	tlsserverconfig "github.com/grepplabs/cert-source/tls/server/config"
-	"github.com/grepplabs/kafka-proxy/config"
+	"github.com/livespotty/K-Filtra/config"
 	"github.com/pkg/errors"
 )
 

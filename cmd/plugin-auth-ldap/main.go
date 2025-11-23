@@ -6,7 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/go-ldap/ldap/v3"
-	"github.com/grepplabs/kafka-proxy/plugin/local-auth/shared"
+	"github.com/livespotty/K-Filtra/plugin/local-auth/shared"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-plugin"
 	"github.com/pkg/errors"

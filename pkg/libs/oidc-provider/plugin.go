@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff"
-	"github.com/grepplabs/kafka-proxy/pkg/apis"
-	"github.com/grepplabs/kafka-proxy/pkg/libs/oidc"
-	"github.com/grepplabs/kafka-proxy/pkg/libs/util"
+	"github.com/livespotty/K-Filtra/pkg/apis"
+	"github.com/livespotty/K-Filtra/pkg/libs/oidc"
+	"github.com/livespotty/K-Filtra/pkg/libs/util"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )

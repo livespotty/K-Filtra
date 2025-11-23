@@ -6,7 +6,7 @@ import (
 	"crypto/sha512"
 	"encoding/binary"
 	"fmt"
-	"github.com/grepplabs/kafka-proxy/proxy/protocol"
+	"github.com/livespotty/K-Filtra/proxy/protocol"
 	"github.com/sirupsen/logrus"
 	"github.com/xdg-go/scram"
 	"hash"

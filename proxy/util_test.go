@@ -16,7 +16,7 @@ import (
 	"github.com/armon/go-socks5"
 	"github.com/elazarl/goproxy"
 	"github.com/elazarl/goproxy/ext/auth"
-	"github.com/grepplabs/kafka-proxy/config"
+	"github.com/livespotty/K-Filtra/config"
 	"github.com/pkg/errors"
 	"golang.org/x/net/proxy"
 )

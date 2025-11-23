@@ -1,6 +1,6 @@
 syntax = "proto3";
 package proto;
-option go_package = "github.com/grepplabs/kafka-proxy/plugin/local-auth/proto";
+option go_package = "github.com/livespotty/K-Filtra/plugin/local-auth/proto";
 
 message CredentialsRequest {
     string username = 1;

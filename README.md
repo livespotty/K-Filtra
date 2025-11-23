@@ -1,6 +1,6 @@
 ## kafka-proxy
 
-[![Build Status](https://github.com/grepplabs/kafka-proxy/actions/workflows/build.yaml/badge.svg)](https://github.com/grepplabs/kafka-proxy/actions/workflows/build.yaml)
+[![Build Status](https://github.com/livespotty/K-Filtra/actions/workflows/build.yaml/badge.svg)](https://github.com/livespotty/K-Filtra/actions/workflows/build.yaml)
 [![Docker Hub](https://img.shields.io/badge/docker-latest-blue.svg)](https://hub.docker.com/r/grepplabs/kafka-proxy)
 [![Docker Pulls](https://img.shields.io/docker/pulls/grepplabs/kafka-proxy)](https://hub.docker.com/r/grepplabs/kafka-proxy)
 
@@ -63,11 +63,11 @@ As not every Kafka release adds new messages/versions which are relevant to the 
 
    Linux
 
-        curl -Ls https://github.com/grepplabs/kafka-proxy/releases/download/v0.4.3/kafka-proxy-v0.4.3-linux-amd64.tar.gz | tar xz
+        curl -Ls https://github.com/livespotty/K-Filtra/releases/download/v0.4.3/kafka-proxy-v0.4.3-linux-amd64.tar.gz | tar xz
 
    macOS
 
-        curl -Ls https://github.com/grepplabs/kafka-proxy/releases/download/v0.4.3/kafka-proxy-v0.4.3-darwin-amd64.tar.gz | tar xz
+        curl -Ls https://github.com/livespotty/K-Filtra/releases/download/v0.4.3/kafka-proxy-v0.4.3-darwin-amd64.tar.gz | tar xz
 
 2. Move the binary in to your PATH.
 

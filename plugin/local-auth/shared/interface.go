@@ -5,8 +5,8 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	"github.com/grepplabs/kafka-proxy/pkg/apis"
-	"github.com/grepplabs/kafka-proxy/plugin/local-auth/proto"
+	"github.com/livespotty/K-Filtra/pkg/apis"
+	"github.com/livespotty/K-Filtra/plugin/local-auth/proto"
 	"github.com/hashicorp/go-plugin"
 	"net/rpc"
 )

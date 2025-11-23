@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/grepplabs/kafka-proxy/config"
-	"github.com/grepplabs/kafka-proxy/pkg/apis"
+	"github.com/livespotty/K-Filtra/config"
+	"github.com/livespotty/K-Filtra/pkg/apis"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )

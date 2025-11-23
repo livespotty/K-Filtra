@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
-	"github.com/grepplabs/kafka-proxy/pkg/apis"
+	"github.com/livespotty/K-Filtra/pkg/apis"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"io"

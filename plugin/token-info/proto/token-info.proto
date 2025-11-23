@@ -1,6 +1,6 @@
 syntax = "proto3";
 package proto;
-option go_package = "github.com/grepplabs/kafka-proxy/plugin/token-info/proto";
+option go_package = "github.com/livespotty/K-Filtra/plugin/token-info/proto";
 
 message VerifyRequest {
     string token = 1;

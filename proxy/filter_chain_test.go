@@ -3,7 +3,7 @@ package proxy
 import (
 	"testing"
 
-	"github.com/grepplabs/kafka-proxy/pkg/filter"
+	"github.com/livespotty/K-Filtra/pkg/filter"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

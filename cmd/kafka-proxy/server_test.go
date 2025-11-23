@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/grepplabs/kafka-proxy/config"
+	"github.com/livespotty/K-Filtra/config"
 	"github.com/stretchr/testify/assert"
 )
 

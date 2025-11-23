@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff"
-	"github.com/grepplabs/kafka-proxy/pkg/libs/oidc"
+	"github.com/livespotty/K-Filtra/pkg/libs/oidc"
 	"github.com/sirupsen/logrus"
 )
 

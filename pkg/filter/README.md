@@ -15,7 +15,7 @@ Example:
 package main
 
 import (
-	"github.com/grepplabs/kafka-proxy/pkg/filter"
+	"github.com/livespotty/K-Filtra/pkg/filter"
 	"github.com/hashicorp/go-plugin"
 )
 
