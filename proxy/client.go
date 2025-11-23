@@ -42,9 +42,10 @@ type Client struct {
 	dialAddressMapping map[string]config.DialAddressMapping
 
 	kafkaClientCert *x509.Certificate
+	filterChain     *FilterChain
 }
 
-func NewClient(conns *ConnSet, c *config.Config, netAddressMappingFunc config.NetAddressMappingFunc, localPasswordAuthenticator apis.PasswordAuthenticator, localTokenAuthenticator apis.TokenInfo, saslTokenProvider apis.TokenProvider, gatewayTokenProvider apis.TokenProvider, gatewayTokenInfo apis.TokenInfo) (*Client, error) {
+func NewClient(conns *ConnSet, c *config.Config, netAddressMappingFunc config.NetAddressMappingFunc, localPasswordAuthenticator apis.PasswordAuthenticator, localTokenAuthenticator apis.TokenInfo, saslTokenProvider apis.TokenProvider, gatewayTokenProvider apis.TokenProvider, gatewayTokenInfo apis.TokenInfo, filterChain *FilterChain) (*Client, error) {
 	var (
 		kafkaClientCert *x509.Certificate
 		tlsConfigFunc   TLSConfigFunc
@@ -176,9 +177,11 @@ func NewClient(conns *ConnSet, c *config.Config, netAddressMappingFunc config.Ne
 			},
 			ForbiddenApiKeys:      forbiddenApiKeys,
 			ProducerAcks0Disabled: c.Kafka.Producer.Acks0Disabled,
+			FilterChain:           filterChain,
 		},
 		dialAddressMapping: dialAddressMapping,
 		kafkaClientCert:    kafkaClientCert,
+		filterChain:        filterChain,
 	}, nil
 }
 
@@ -272,6 +275,9 @@ STOP:
 func (c *Client) Close() {
 	c.stopOnce.Do(func() {
 		close(c.stopRun)
+		if c.filterChain != nil {
+			c.filterChain.Close()
+		}
 	})
 }
 

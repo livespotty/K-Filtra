@@ -1,10 +1,11 @@
 package server
 
 import (
-	"github.com/grepplabs/kafka-proxy/config"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+
+	"github.com/grepplabs/kafka-proxy/config"
+	"github.com/stretchr/testify/assert"
 )
 
 func setupBootstrapServersMappingTest() {
@@ -308,4 +309,33 @@ func serverPreRunFailure(t *testing.T, cmdLineFlags []string, expectedErrorMsg s
 	a := assert.New(t)
 
 	a.Equal(err.Error(), expectedErrorMsg)
+}
+
+func TestPluginDirFromFlags(t *testing.T) {
+	setupBootstrapServersMappingTest()
+
+	args := []string{"cobra.test",
+		"--bootstrap-server-mapping", "192.168.99.100:32401,0.0.0.0:32401",
+		"--plugin-dir", "/tmp/plugins",
+	}
+
+	_ = Server.ParseFlags(args)
+	err := Server.PreRunE(nil, args)
+	a := assert.New(t)
+	a.Nil(err)
+	a.Equal("/tmp/plugins", c.Proxy.PluginDir)
+}
+
+func TestPluginDirDefault(t *testing.T) {
+	setupBootstrapServersMappingTest()
+
+	args := []string{"cobra.test",
+		"--bootstrap-server-mapping", "192.168.99.100:32401,0.0.0.0:32401",
+	}
+
+	_ = Server.ParseFlags(args)
+	err := Server.PreRunE(nil, args)
+	a := assert.New(t)
+	a.Nil(err)
+	a.Equal("", c.Proxy.PluginDir)
 }

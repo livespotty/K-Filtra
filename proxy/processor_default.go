@@ -2,13 +2,15 @@ package proxy
 
 import (
 	"bytes"
+	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/grepplabs/kafka-proxy/proxy/protocol"
-	"github.com/sirupsen/logrus"
 	"io"
 	"strconv"
 	"time"
+
+	"github.com/grepplabs/kafka-proxy/proxy/protocol"
+	"github.com/sirupsen/logrus"
 )
 
 type DefaultRequestHandler struct {
@@ -90,6 +92,32 @@ func (handler *DefaultRequestHandler) handleRequest(dst DeadlineWriter, src Dead
 		return true, err
 	}
 
+	// Read the rest of the message
+	restLen := int(requestKeyVersion.Length) - 4 - len(readBytes)
+	if restLen < 0 {
+		return true, fmt.Errorf("invalid request length %d", requestKeyVersion.Length)
+	}
+	restBuf := make([]byte, restLen)
+	if _, err = io.ReadFull(src, restBuf); err != nil {
+		return true, err
+	}
+
+	// Construct full payload: ApiKey + ApiVersion + readBytes + restBuf
+	payload := make([]byte, 0, 4+len(readBytes)+len(restBuf))
+	payload = append(payload, keyVersionBuf[4:]...)
+	payload = append(payload, readBytes...)
+	payload = append(payload, restBuf...)
+
+	// Apply filters
+	if ctx.filterChain != nil {
+		payload, err = ctx.filterChain.ApplyRequestFilters(requestKeyVersion.ApiKey, requestKeyVersion.ApiVersion, payload)
+		if err != nil {
+			return true, err
+		}
+		// Update requestKeyVersion length
+		requestKeyVersion.Length = int32(len(payload))
+	}
+
 	// send inFlightRequest to channel before myCopyN to prevent race condition in proxyResponses
 	if mustReply {
 		if err = sendRequestKeyVersion(ctx.openRequestsChannel, openRequestSendTimeout, requestKeyVersion); err != nil {
@@ -108,19 +136,15 @@ func (handler *DefaultRequestHandler) handleRequest(dst DeadlineWriter, src Dead
 	}
 
 	// write - send to broker
-	if _, err = dst.Write(keyVersionBuf); err != nil {
+	lengthBuf := make([]byte, 4)
+	binary.BigEndian.PutUint32(lengthBuf, uint32(requestKeyVersion.Length))
+	if _, err = dst.Write(lengthBuf); err != nil {
 		return false, err
 	}
-	// write - send to broker
-	if len(readBytes) > 0 {
-		if _, err = dst.Write(readBytes); err != nil {
-			return false, err
-		}
+	if _, err = dst.Write(payload); err != nil {
+		return false, err
 	}
-	// 4 bytes were written as keyVersionBuf (ApiKey, ApiVersion)
-	if readErr, err = myCopyN(dst, src, int64(requestKeyVersion.Length-int32(4+len(readBytes))), ctx.buf); err != nil {
-		return readErr, err
-	}
+
 	if requestKeyVersion.ApiKey == apiKeySaslHandshake {
 		if requestKeyVersion.ApiVersion == 0 {
 			return false, ctx.putNextHandlers(saslAuthV0RequestHandler, saslAuthV0ResponseHandler)
@@ -221,51 +245,58 @@ func (handler *DefaultResponseHandler) handleResponse(dst DeadlineWriter, src De
 	if err != nil {
 		return true, err
 	}
-	readResponsesHeaderLength := int32(4 + len(unknownTaggedFields)) // 4 = Length + CorrelationID
+	// readResponsesHeaderLength := int32(4 + len(unknownTaggedFields)) // 4 = Length + CorrelationID (Wait, Length is not included in Length field value. CorrelationID is 4 bytes.)
 
+	// responseHeader.Length includes CorrelationID (4) + TaggedFields + Body
+	remainingLen := int(responseHeader.Length) - 4 - len(unknownTaggedFields)
+	if remainingLen < 0 {
+		return true, fmt.Errorf("invalid response length %d", responseHeader.Length)
+	}
+
+	respBody := make([]byte, remainingLen)
+	if _, err = io.ReadFull(src, respBody); err != nil {
+		return true, err
+	}
+
+	// Apply response modifier (address mapping)
 	responseModifier, err := protocol.GetResponseModifier(requestKeyVersion.ApiKey, requestKeyVersion.ApiVersion, ctx.netAddressMappingFunc)
 	if err != nil {
 		return true, err
 	}
 	if responseModifier != nil {
-		if responseHeader.Length > protocol.MaxResponseSize {
-			return true, protocol.PacketDecodingError{Info: fmt.Sprintf("message of length %d too large", responseHeader.Length)}
-		}
-		resp := make([]byte, int(responseHeader.Length-readResponsesHeaderLength))
-		if _, err = io.ReadFull(src, resp); err != nil {
-			return true, err
-		}
-		newResponseBuf, err := responseModifier.Apply(resp)
+		respBody, err = responseModifier.Apply(respBody)
 		if err != nil {
 			return true, err
-		}
-		// add 4 bytes (CorrelationId) to the length
-		newHeaderBuf, err := protocol.Encode(&protocol.ResponseHeader{Length: int32(len(newResponseBuf) + int(readResponsesHeaderLength)), CorrelationID: responseHeader.CorrelationID})
-		if err != nil {
-			return true, err
-		}
-		if _, err := dst.Write(newHeaderBuf); err != nil {
-			return false, err
-		}
-		if _, err := dst.Write(unknownTaggedFields); err != nil {
-			return false, err
-		}
-		if _, err := dst.Write(newResponseBuf); err != nil {
-			return false, err
-		}
-	} else {
-		// write - send to local
-		if _, err := dst.Write(responseHeaderBuf); err != nil {
-			return false, err
-		}
-		if _, err := dst.Write(unknownTaggedFields); err != nil {
-			return false, err
-		}
-		// 4 bytes were written as responseHeaderBuf (CorrelationId) + tagged fields
-		if readErr, err = myCopyN(dst, src, int64(responseHeader.Length-readResponsesHeaderLength), ctx.buf); err != nil {
-			return readErr, err
 		}
 	}
+
+	// Construct Full Payload for filters
+	// Payload = CorrelationID + TaggedFields + ResponseBody
+	payload := make([]byte, 0, 4+len(unknownTaggedFields)+len(respBody))
+	payload = append(payload, responseHeaderBuf[4:]...) // CorrelationID
+	payload = append(payload, unknownTaggedFields...)
+	payload = append(payload, respBody...)
+
+	// Apply filters
+	if ctx.filterChain != nil {
+		payload, err = ctx.filterChain.ApplyResponseFilters(requestKeyVersion.ApiKey, requestKeyVersion.ApiVersion, payload)
+		if err != nil {
+			return true, err
+		}
+	}
+
+	// Write Length
+	lengthBuf := make([]byte, 4)
+	binary.BigEndian.PutUint32(lengthBuf, uint32(len(payload)))
+	if _, err = dst.Write(lengthBuf); err != nil {
+		return false, err
+	}
+
+	// Write Payload
+	if _, err = dst.Write(payload); err != nil {
+		return false, err
+	}
+
 	return false, nil // continue nextResponse
 }
 
