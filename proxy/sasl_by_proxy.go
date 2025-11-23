@@ -9,8 +9,8 @@ import (
 	"io"
 	"time"
 
-	"github.com/grepplabs/kafka-proxy/pkg/apis"
-	"github.com/grepplabs/kafka-proxy/proxy/protocol"
+	"github.com/livespotty/K-Filtra/pkg/apis"
+	"github.com/livespotty/K-Filtra/proxy/protocol"
 	"github.com/sirupsen/logrus"
 )
 

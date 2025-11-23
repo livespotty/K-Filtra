@@ -11,9 +11,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/grepplabs/kafka-proxy/pkg/apis"
-	"github.com/grepplabs/kafka-proxy/pkg/libs/util"
-	"github.com/grepplabs/kafka-proxy/plugin/token-info/shared"
+	"github.com/livespotty/K-Filtra/pkg/apis"
+	"github.com/livespotty/K-Filtra/pkg/libs/util"
+	"github.com/livespotty/K-Filtra/plugin/token-info/shared"
 	"github.com/hashicorp/go-plugin"
 	"github.com/sirupsen/logrus"
 )

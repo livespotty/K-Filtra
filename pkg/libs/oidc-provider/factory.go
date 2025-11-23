@@ -3,8 +3,8 @@ package oidcprovider
 import (
 	"flag"
 
-	"github.com/grepplabs/kafka-proxy/pkg/apis"
-	"github.com/grepplabs/kafka-proxy/pkg/registry"
+	"github.com/livespotty/K-Filtra/pkg/apis"
+	"github.com/livespotty/K-Filtra/pkg/registry"
 )
 
 func init() {

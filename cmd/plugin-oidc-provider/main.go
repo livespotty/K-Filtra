@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	oidcprovider "github.com/grepplabs/kafka-proxy/pkg/libs/oidc-provider"
-	"github.com/grepplabs/kafka-proxy/plugin/token-provider/shared"
+	oidcprovider "github.com/livespotty/K-Filtra/pkg/libs/oidc-provider"
+	"github.com/livespotty/K-Filtra/plugin/token-provider/shared"
 	"github.com/hashicorp/go-plugin"
 	"github.com/sirupsen/logrus"
 )

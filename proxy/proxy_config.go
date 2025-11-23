@@ -1,7 +1,7 @@
 package proxy
 
 import (
-	"github.com/grepplabs/kafka-proxy/config"
+	"github.com/livespotty/K-Filtra/config"
 	"sync/atomic"
 )
 

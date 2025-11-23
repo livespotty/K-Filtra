@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/grepplabs/kafka-proxy/proxy/protocol"
+	"github.com/livespotty/K-Filtra/proxy/protocol"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )

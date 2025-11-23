@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"runtime"
 
-	"github.com/grepplabs/kafka-proxy/config"
-	"github.com/grepplabs/kafka-proxy/proxy"
+	"github.com/livespotty/K-Filtra/config"
+	"github.com/livespotty/K-Filtra/proxy"
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -26,17 +26,17 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/grepplabs/kafka-proxy/pkg/apis"
-	localauth "github.com/grepplabs/kafka-proxy/plugin/local-auth/shared"
-	tokeninfo "github.com/grepplabs/kafka-proxy/plugin/token-info/shared"
-	tokenprovider "github.com/grepplabs/kafka-proxy/plugin/token-provider/shared"
+	"github.com/livespotty/K-Filtra/pkg/apis"
+	localauth "github.com/livespotty/K-Filtra/plugin/local-auth/shared"
+	tokeninfo "github.com/livespotty/K-Filtra/plugin/token-info/shared"
+	tokenprovider "github.com/livespotty/K-Filtra/plugin/token-provider/shared"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
 
-	"github.com/grepplabs/kafka-proxy/pkg/registry"
+	"github.com/livespotty/K-Filtra/pkg/registry"
 	// built-in plugins
-	_ "github.com/grepplabs/kafka-proxy/pkg/libs/googleid-info"
-	_ "github.com/grepplabs/kafka-proxy/pkg/libs/googleid-provider"
+	_ "github.com/livespotty/K-Filtra/pkg/libs/googleid-info"
+	_ "github.com/livespotty/K-Filtra/pkg/libs/googleid-provider"
 	"github.com/spf13/viper"
 )
 

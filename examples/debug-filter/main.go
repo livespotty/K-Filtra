@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/grepplabs/kafka-proxy/pkg/filter"
 	"github.com/hashicorp/go-plugin"
+	"github.com/livespotty/K-Filtra/pkg/filter"
 )
 
 // DebugFilter is a simple filter that logs request and response sizes to a file.

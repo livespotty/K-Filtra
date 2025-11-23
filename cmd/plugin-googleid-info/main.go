@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/grepplabs/kafka-proxy/pkg/libs/googleid-info"
-	"github.com/grepplabs/kafka-proxy/plugin/token-info/shared"
+	"github.com/livespotty/K-Filtra/pkg/libs/googleid-info"
+	"github.com/livespotty/K-Filtra/plugin/token-info/shared"
 	"github.com/hashicorp/go-plugin"
 	"github.com/sirupsen/logrus"
 	"os"

@@ -1,8 +1,8 @@
 package shared
 
 import (
-	"github.com/grepplabs/kafka-proxy/pkg/apis"
-	"github.com/grepplabs/kafka-proxy/plugin/token-provider/proto"
+	"github.com/livespotty/K-Filtra/pkg/apis"
+	"github.com/livespotty/K-Filtra/plugin/token-provider/proto"
 	"github.com/hashicorp/go-plugin"
 	"golang.org/x/net/context"
 )

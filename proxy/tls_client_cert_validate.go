@@ -4,8 +4,8 @@ import (
 	"crypto/x509"
 	"fmt"
 
-	"github.com/grepplabs/kafka-proxy/config"
-	"github.com/grepplabs/kafka-proxy/proxy/clientcertvalidate"
+	"github.com/livespotty/K-Filtra/config"
+	"github.com/livespotty/K-Filtra/proxy/clientcertvalidate"
 )
 
 func tlsClientCertVerificationFunc(conf *config.Config) (func([][]byte, [][]*x509.Certificate) error, error) {

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/grepplabs/kafka-proxy/config"
-	"github.com/grepplabs/kafka-proxy/proxy/protocol"
+	"github.com/livespotty/K-Filtra/config"
+	"github.com/livespotty/K-Filtra/proxy/protocol"
 )
 
 const (

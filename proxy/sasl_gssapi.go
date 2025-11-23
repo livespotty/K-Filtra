@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/grepplabs/kafka-proxy/config"
+	"github.com/livespotty/K-Filtra/config"
 	"github.com/jcmturner/gokrb5/v8/asn1tools"
 	krb5client "github.com/jcmturner/gokrb5/v8/client"
 	krb5config "github.com/jcmturner/gokrb5/v8/config"

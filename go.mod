@@ -1,4 +1,4 @@
-module github.com/grepplabs/kafka-proxy
+module github.com/livespotty/K-Filtra
 
 go 1.23.0
 

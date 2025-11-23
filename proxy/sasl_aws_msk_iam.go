@@ -14,8 +14,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
-	proxyconfig "github.com/grepplabs/kafka-proxy/config"
-	"github.com/grepplabs/kafka-proxy/proxy/protocol"
+	proxyconfig "github.com/livespotty/K-Filtra/config"
+	"github.com/livespotty/K-Filtra/proxy/protocol"
 	"github.com/sirupsen/logrus"
 )
 

@@ -2,7 +2,7 @@ package registry
 
 import (
 	"fmt"
-	"github.com/grepplabs/kafka-proxy/pkg/apis"
+	"github.com/livespotty/K-Filtra/pkg/apis"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
