@@ -22,7 +22,7 @@ jobs:
       - name: Setup go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23'
+          go-version: '1.25.4'
           check-latest: true
       - run: go version
       - name: Run build and test
@@ -32,7 +32,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            grepplabs/kafka-proxy
+            livespotty/K-Filtra
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -45,7 +45,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            grepplabs/kafka-proxy
+            livespotty/K-Filtra
           flavor: |
             suffix=-all
           tags: |
