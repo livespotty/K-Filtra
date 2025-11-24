@@ -10,8 +10,8 @@ K-Filtra filter can intercept and modify Kafka requests and responses.
 
 
 [![Build Status](https://github.com/livespotty/K-Filtra/actions/workflows/build.yaml/badge.svg)](https://github.com/livespotty/K-Filtra/actions/workflows/build.yaml)
-[![Docker Hub](https://img.shields.io/badge/docker-latest-blue.svg)](https://hub.docker.com/r/grepplabs/kafka-proxy)
-[![Docker Pulls](https://img.shields.io/docker/pulls/grepplabs/kafka-proxy)](https://hub.docker.com/r/grepplabs/kafka-proxy)
+[![Docker Hub](https://img.shields.io/badge/docker-latest-blue.svg)](https://hub.docker.com/r/livespotty/K-Filtra)
+[![Docker Pulls](https://img.shields.io/docker/pulls/livespotty/K-Filtra)](https://hub.docker.com/r/livespotty/K-Filtra)
 
 The Kafka Proxy is based on idea of [Cloud SQL Proxy](https://github.com/GoogleCloudPlatform/cloudsql-proxy). 
 It allows a service to connect to Kafka brokers without having to deal with SASL/PLAIN authentication and SSL certificates.  
