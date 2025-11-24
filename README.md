@@ -1,4 +1,13 @@
-## kafka-proxy
+## K-Filtra (kafka-proxy + filter plugins)
+
+Kafka Proxy is a tool that allows a service to connect to Kafka brokers without having to deal with SASL/PLAIN authentication and SSL certificates.
+
+Filter plugins are implemented as separate Go binaries that communicate with the proxy over RPC.
+
+K-Filtra is a tool that adds filter plugins to the Kafka Proxy. K-Filtra is a drop-in replacement for the Kafka Proxy.
+This is a fork of the [Kafka Proxy](https://github.com/grepplabs/kafka-proxy) with added filter plugins.
+K-Filtra filter can intercept and modify Kafka requests and responses.
+
 
 [![Build Status](https://github.com/livespotty/K-Filtra/actions/workflows/build.yaml/badge.svg)](https://github.com/livespotty/K-Filtra/actions/workflows/build.yaml)
 [![Docker Hub](https://img.shields.io/badge/docker-latest-blue.svg)](https://hub.docker.com/r/grepplabs/kafka-proxy)
