@@ -10,6 +10,8 @@ K-Filtra filter can intercept and modify Kafka requests and responses.
 
 
 [![Build Status](https://github.com/livespotty/K-Filtra/actions/workflows/build.yaml/badge.svg)](https://github.com/livespotty/K-Filtra/actions/workflows/build.yaml)
+[![GHCR](https://img.shields.io/badge/ghcr-latest-blue.svg)](https://github.com/livespotty/K-Filtra/pkgs/container/k-filtra)
+[![Release](https://img.shields.io/github/v/release/livespotty/K-Filtra)](https://github.com/livespotty/K-Filtra/releases)
 
 
 The Kafka Proxy is based on idea of [Cloud SQL Proxy](https://github.com/GoogleCloudPlatform/cloudsql-proxy). 
@@ -71,11 +73,11 @@ As not every Kafka release adds new messages/versions which are relevant to the 
 
    Linux
 
-        curl -Ls https://github.com/livespotty/K-Filtra/releases/download/v0.4.3/kafka-proxy-v0.4.3-linux-amd64.tar.gz | tar xz
+        curl -Ls https://github.com/livespotty/K-Filtra/releases/download/v0.0.1/kafka-proxy-v0.0.1-linux-amd64.tar.gz | tar xz
 
    macOS
 
-        curl -Ls https://github.com/livespotty/K-Filtra/releases/download/v0.4.3/kafka-proxy-v0.4.3-darwin-amd64.tar.gz | tar xz
+        curl -Ls https://github.com/livespotty/K-Filtra/releases/download/v0.0.1/kafka-proxy-v0.0.1-darwin-amd64.tar.gz | tar xz
 
 2. Move the binary in to your PATH.
 
@@ -89,11 +91,11 @@ As not every Kafka release adds new messages/versions which are relevant to the 
 
 ### Docker images
 
-Docker images are available on [Docker Hub](https://hub.docker.com/r/grepplabs/kafka-proxy/tags).
+Docker images are available on [GitHub Container Registry](https://github.com/livespotty/K-Filtra/pkgs/container/k-filtra).
 
 You can launch a kafka-proxy container for trying it out with
 
-    docker run --rm -p 30001-30003:30001-30003 grepplabs/kafka-proxy:0.4.3 \
+    docker run --rm -p 30001-30003:30001-30003 ghcr.io/livespotty/k-filtra:0.0.1 \
               server \
             --bootstrap-server-mapping "localhost:19092,0.0.0.0:30001" \
             --bootstrap-server-mapping "localhost:29092,0.0.0.0:30002" \
@@ -112,7 +114,7 @@ Docker images with precompiled plugins located in `/opt/kafka-proxy/bin/` are ta
 
 You can launch a kafka-proxy container with auth-ldap plugin for trying it out with
 
-    docker run --rm -p 30001-30003:30001-30003 grepplabs/kafka-proxy:0.4.3-all \
+    docker run --rm -p 30001-30003:30001-30003 ghcr.io/livespotty/k-filtra:0.0.1-all \
                   server \
                 --bootstrap-server-mapping "localhost:19092,0.0.0.0:30001" \
                 --bootstrap-server-mapping "localhost:29092,0.0.0.0:30002" \
@@ -496,7 +498,7 @@ spec:
     spec:
       containers:
         - name: kafka-proxy
-          image: grepplabs/kafka-proxy:latest
+          image: ghcr.io/livespotty/k-filtra:latest
           args:
             - 'server'
             - '--log-format=json'
@@ -599,7 +601,7 @@ spec:
     spec:
       containers:
         - name: kafka-proxy
-          image: grepplabs/kafka-proxy:latest
+          image: ghcr.io/livespotty/k-filtra:latest
           args:
             - 'server'
             - '--log-format=json'
