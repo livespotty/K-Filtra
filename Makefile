@@ -10,7 +10,7 @@ VERSION       ?= $(shell git describe --tags --always --dirty)
 GOPKGS         = $(shell go list ./... | grep -v /vendor/)
 BUILD_FLAGS   ?=
 LDFLAGS       ?= -X github.com/livespotty/K-Filtra/config.Version=$(VERSION) -w -s
-TAG           ?= "v0.4.3"
+TAG           ?= "v0.0.1"
 
 PROTOC_GO_VERSION ?= v1.33
 PROTOC_GRPC_VERSION ?= v1.2
