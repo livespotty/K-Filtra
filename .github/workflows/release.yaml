@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
   build-and-release:
@@ -32,7 +33,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            livespotty/K-Filtra
+            ghcr.io/${{ github.repository }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -45,7 +46,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            livespotty/K-Filtra
+            ghcr.io/${{ github.repository }}
           flavor: |
             suffix=-all
           tags: |
@@ -59,11 +60,12 @@ jobs:
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Login to DockerHub
+      - name: Login to GHCR
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Docker build and push
         uses: docker/build-push-action@v6
         with:
