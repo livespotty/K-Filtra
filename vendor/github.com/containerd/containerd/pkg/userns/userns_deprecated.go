@@ -14,14 +14,16 @@
    limitations under the License.
 */
 
-package platforms
+// Deprecated: use github.com/moby/sys/userns
+package userns
 
-// DefaultString returns the default string specifier for the platform.
-func DefaultString() string {
-	return Format(DefaultSpec())
-}
+import "github.com/moby/sys/userns"
 
-// DefaultStrict returns strict form of Default.
-func DefaultStrict() MatchComparer {
-	return OnlyStrict(DefaultSpec())
+// RunningInUserNS detects whether we are currently running in a Linux
+// user namespace and memoizes the result. It returns false on non-Linux
+// platforms.
+//
+// Deprecated: use [userns.RunningInUserNS].
+func RunningInUserNS() bool {
+	return userns.RunningInUserNS()
 }

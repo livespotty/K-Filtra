@@ -1,5 +1,3 @@
-//go:build !linux
-
 /*
    Copyright The containerd Authors.
 
@@ -16,10 +14,17 @@
    limitations under the License.
 */
 
-package userns
+package platforms
 
-// RunningInUserNS is a stub for non-Linux systems
-// Always returns false
-func RunningInUserNS() bool {
-	return false
-}
+import "errors"
+
+// These errors mirror the errors defined in [github.com/containerd/containerd/errdefs],
+// however, they are not exported as they are not expected to be used as sentinel
+// errors by consumers of this package.
+//
+//nolint:unused // not all errors are used on all platforms.
+var (
+	errNotFound        = errors.New("not found")
+	errInvalidArgument = errors.New("invalid argument")
+	errNotImplemented  = errors.New("not implemented")
+)
