@@ -59,11 +59,6 @@ func (ws *ExitStrategy) Timeout() *time.Duration {
 	return ws.timeout
 }
 
-// String returns a human-readable description of the wait strategy.
-func (ws *ExitStrategy) String() string {
-	return "container to exit"
-}
-
 // WaitUntilReady implements Strategy.WaitUntilReady
 func (ws *ExitStrategy) WaitUntilReady(ctx context.Context, target StrategyTarget) error {
 	if ws.timeout != nil {
@@ -81,8 +76,9 @@ func (ws *ExitStrategy) WaitUntilReady(ctx context.Context, target StrategyTarge
 			if err != nil {
 				if !strings.Contains(err.Error(), "No such container") {
 					return err
+				} else {
+					return nil
 				}
-				return nil
 			}
 			if state.Running {
 				time.Sleep(ws.PollInterval)

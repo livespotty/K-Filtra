@@ -7,9 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/testcontainers/testcontainers-go/internal/config"
 	"github.com/testcontainers/testcontainers-go/internal/core"
-	"github.com/testcontainers/testcontainers-go/log"
 )
 
 // possible provider types
@@ -25,8 +23,8 @@ type (
 
 	// GenericProviderOptions defines options applicable to all providers
 	GenericProviderOptions struct {
-		Logger         log.Logger
-		defaultNetwork string
+		Logger         Logging
+		DefaultNetwork string
 	}
 
 	// GenericProviderOption defines a common interface to modify GenericProviderOptions
@@ -97,7 +95,7 @@ type ContainerProvider interface {
 // GetProvider provides the provider implementation for a certain type
 func (t ProviderType) GetProvider(opts ...GenericProviderOption) (GenericProvider, error) {
 	opt := &GenericProviderOptions{
-		Logger: log.Default(),
+		Logger: Logger,
 	}
 
 	for _, o := range opts {
@@ -132,7 +130,7 @@ func (t ProviderType) GetProvider(opts ...GenericProviderOption) (GenericProvide
 func NewDockerProvider(provOpts ...DockerProviderOption) (*DockerProvider, error) {
 	o := &DockerProviderOptions{
 		GenericProviderOptions: &GenericProviderOptions{
-			Logger: log.Default(),
+			Logger: Logger,
 		},
 	}
 
@@ -146,10 +144,16 @@ func NewDockerProvider(provOpts ...DockerProviderOption) (*DockerProvider, error
 		return nil, err
 	}
 
-	return &DockerProvider{
+	tcConfig := ReadConfig()
+
+	dockerHost := core.ExtractDockerHost(ctx)
+
+	p := &DockerProvider{
 		DockerProviderOptions: o,
-		host:                  core.MustExtractDockerHost(ctx),
+		host:                  dockerHost,
 		client:                c,
-		config:                config.Read(),
-	}, nil
+		config:                tcConfig,
+	}
+
+	return p, nil
 }

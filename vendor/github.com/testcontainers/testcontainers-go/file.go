@@ -9,8 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/testcontainers/testcontainers-go/log"
 )
 
 func isDir(path string) (bool, error) {
@@ -43,7 +41,7 @@ func tarDir(src string, fileMode int64) (*bytes.Buffer, error) {
 
 	buffer := &bytes.Buffer{}
 
-	log.Printf(">> creating TAR file from directory: %s\n", src)
+	Logger.Printf(">> creating TAR file from directory: %s\n", src)
 
 	// tar > gzip > buffer
 	zr := gzip.NewWriter(buffer)
@@ -61,7 +59,7 @@ func tarDir(src string, fileMode int64) (*bytes.Buffer, error) {
 
 		// if a symlink, skip file
 		if fi.Mode().Type() == os.ModeSymlink {
-			log.Printf(">> skipping symlink: %s\n", file)
+			Logger.Printf(">> skipping symlink: %s\n", file)
 			return nil
 		}
 

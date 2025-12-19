@@ -3,11 +3,11 @@ package core
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
-	"strconv"
 )
 
 var (
@@ -36,7 +36,7 @@ func IsWindows() bool {
 //  2. ~/.docker/run/docker.sock file.
 //  3. ~/.docker/desktop/docker.sock file.
 //  4. /run/user/${uid}/docker.sock file.
-//  5. Else, return ErrRootlessDockerNotFound, wrapping specific errors for each of the above paths.
+//  5. Else, return ErrRootlessDockerNotFound, wrapping secific errors for each of the above paths.
 //
 // It should include the Docker socket schema (unix://) in the returned path.
 func rootlessDockerSocketPath(_ context.Context) (string, error) {
@@ -53,24 +53,18 @@ func rootlessDockerSocketPath(_ context.Context) (string, error) {
 		rootlessSocketPathFromRunDir,
 	}
 
-	var errs []error
+	outerErr := ErrRootlessDockerNotFound
 	for _, socketPathFn := range socketPathFns {
 		s, err := socketPathFn()
 		if err != nil {
-			if !isHostNotSet(err) {
-				errs = append(errs, err)
-			}
+			outerErr = fmt.Errorf("%w: %w", outerErr, err)
 			continue
 		}
 
 		return DockerSocketSchema + s, nil
 	}
 
-	if len(errs) > 0 {
-		return "", errors.Join(errs...)
-	}
-
-	return "", ErrRootlessDockerNotFound
+	return "", outerErr
 }
 
 func fileExists(f string) bool {
@@ -79,9 +73,11 @@ func fileExists(f string) bool {
 }
 
 func parseURL(s string) (string, error) {
-	hostURL, err := url.Parse(s)
-	if err != nil {
+	var hostURL *url.URL
+	if u, err := url.Parse(s); err != nil {
 		return "", err
+	} else {
+		hostURL = u
 	}
 
 	switch hostURL.Scheme {
@@ -142,7 +138,7 @@ func rootlessSocketPathFromHomeDesktopDir() (string, error) {
 // rootlessSocketPathFromRunDir returns the path to the rootless Docker socket from the /run/user/<uid>/docker.sock file.
 func rootlessSocketPathFromRunDir() (string, error) {
 	uid := os.Getuid()
-	f := filepath.Join(baseRunDir, "user", strconv.Itoa(uid), "docker.sock")
+	f := filepath.Join(baseRunDir, "user", fmt.Sprintf("%d", uid), "docker.sock")
 	if fileExists(f) {
 		return f, nil
 	}

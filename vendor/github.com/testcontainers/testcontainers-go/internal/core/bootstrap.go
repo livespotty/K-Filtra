@@ -2,12 +2,11 @@ package core
 
 import (
 	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"os"
 
 	"github.com/google/uuid"
-	"github.com/shirou/gopsutil/v4/process"
+	"github.com/shirou/gopsutil/v3/process"
 )
 
 // sessionID returns a unique session ID for the current test session. Because each Go package
@@ -39,7 +38,7 @@ var sessionID string
 var projectPath string
 
 // processID returns a unique ID for the current test process. Because each Go package will be run in a separate process,
-// we need a way to identify the current test process, in the form of a UUID
+// we need a way to identify the current test process, in the form of an UUID
 var processID string
 
 const sessionIDPlaceholder = "testcontainers-go:%d:%d"
@@ -51,7 +50,7 @@ func init() {
 	var createTime int64
 	fallbackCwd, err := os.Getwd()
 	if err != nil {
-		// very unlikely to fail, but if it does, we will use a temp dir
+		// very unlinke to fail, but if it does, we will use a temp dir
 		fallbackCwd = os.TempDir()
 	}
 
@@ -84,13 +83,13 @@ func init() {
 	}
 
 	hasher := sha256.New()
-	_, err = fmt.Fprintf(hasher, sessionIDPlaceholder, parentPid, createTime)
+	_, err = hasher.Write([]byte(fmt.Sprintf(sessionIDPlaceholder, parentPid, createTime)))
 	if err != nil {
 		sessionID = uuid.New().String()
 		return
 	}
 
-	sessionID = hex.EncodeToString(hasher.Sum(nil))
+	sessionID = fmt.Sprintf("%x", hasher.Sum(nil))
 }
 
 func ProcessID() string {
