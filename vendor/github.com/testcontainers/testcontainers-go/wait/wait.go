@@ -7,7 +7,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types"
 	"github.com/docker/go-connections/nat"
 
 	"github.com/testcontainers/testcontainers-go/exec"
@@ -25,25 +25,24 @@ type StrategyTimeout interface {
 
 type StrategyTarget interface {
 	Host(context.Context) (string, error)
-	Inspect(context.Context) (*container.InspectResponse, error)
+	Inspect(context.Context) (*types.ContainerJSON, error)
 	Ports(ctx context.Context) (nat.PortMap, error) // Deprecated: use Inspect instead
 	MappedPort(context.Context, nat.Port) (nat.Port, error)
 	Logs(context.Context) (io.ReadCloser, error)
 	Exec(context.Context, []string, ...exec.ProcessOption) (int, io.Reader, error)
-	State(context.Context) (*container.State, error)
-	CopyFileFromContainer(ctx context.Context, filePath string) (io.ReadCloser, error)
+	State(context.Context) (*types.ContainerState, error)
 }
 
 func checkTarget(ctx context.Context, target StrategyTarget) error {
 	state, err := target.State(ctx)
 	if err != nil {
-		return fmt.Errorf("get state: %w", err)
+		return err
 	}
 
 	return checkState(state)
 }
 
-func checkState(state *container.State) error {
+func checkState(state *types.ContainerState) error {
 	switch {
 	case state.Running:
 		return nil

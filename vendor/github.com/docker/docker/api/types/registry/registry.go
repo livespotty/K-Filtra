@@ -1,7 +1,4 @@
-// FIXME(thaJeztah): remove once we are a module; the go:build directive prevents go from downgrading language version to go1.16:
-//go:build go1.23
-
-package registry
+package registry // import "github.com/docker/docker/api/types/registry"
 
 import (
 	"encoding/json"
@@ -12,32 +9,11 @@ import (
 
 // ServiceConfig stores daemon registry services configuration.
 type ServiceConfig struct {
-	AllowNondistributableArtifactsCIDRs     []*NetIPNet `json:"AllowNondistributableArtifactsCIDRs,omitempty"`     // Deprecated: non-distributable artifacts are deprecated and enabled by default. This field will be removed in the next release.
-	AllowNondistributableArtifactsHostnames []string    `json:"AllowNondistributableArtifactsHostnames,omitempty"` // Deprecated: non-distributable artifacts are deprecated and enabled by default. This field will be removed in the next release.
-
-	InsecureRegistryCIDRs []*NetIPNet           `json:"InsecureRegistryCIDRs"`
-	IndexConfigs          map[string]*IndexInfo `json:"IndexConfigs"`
-	Mirrors               []string
-
-	// ExtraFields is for internal use to include deprecated fields on older API versions.
-	ExtraFields map[string]any `json:"-"`
-}
-
-// MarshalJSON implements a custom marshaler to include legacy fields
-// in API responses.
-func (sc *ServiceConfig) MarshalJSON() ([]byte, error) {
-	type tmp ServiceConfig
-	base, err := json.Marshal((*tmp)(sc))
-	if err != nil {
-		return nil, err
-	}
-	var merged map[string]any
-	_ = json.Unmarshal(base, &merged)
-
-	for k, v := range sc.ExtraFields {
-		merged[k] = v
-	}
-	return json.Marshal(merged)
+	AllowNondistributableArtifactsCIDRs     []*NetIPNet
+	AllowNondistributableArtifactsHostnames []string
+	InsecureRegistryCIDRs                   []*NetIPNet           `json:"InsecureRegistryCIDRs"`
+	IndexConfigs                            map[string]*IndexInfo `json:"IndexConfigs"`
+	Mirrors                                 []string
 }
 
 // NetIPNet is the net.IPNet type, which can be marshalled and
@@ -55,17 +31,15 @@ func (ipnet *NetIPNet) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON sets the IPNet from a byte array of JSON
-func (ipnet *NetIPNet) UnmarshalJSON(b []byte) error {
+func (ipnet *NetIPNet) UnmarshalJSON(b []byte) (err error) {
 	var ipnetStr string
-	if err := json.Unmarshal(b, &ipnetStr); err != nil {
-		return err
+	if err = json.Unmarshal(b, &ipnetStr); err == nil {
+		var cidr *net.IPNet
+		if _, cidr, err = net.ParseCIDR(ipnetStr); err == nil {
+			*ipnet = NetIPNet(*cidr)
+		}
 	}
-	_, cidr, err := net.ParseCIDR(ipnetStr)
-	if err != nil {
-		return err
-	}
-	*ipnet = NetIPNet(*cidr)
-	return nil
+	return
 }
 
 // IndexInfo contains information about a registry
@@ -108,6 +82,32 @@ type IndexInfo struct {
 	Secure bool
 	// Official indicates whether this is an official registry
 	Official bool
+}
+
+// SearchResult describes a search result returned from a registry
+type SearchResult struct {
+	// StarCount indicates the number of stars this repository has
+	StarCount int `json:"star_count"`
+	// IsOfficial is true if the result is from an official repository.
+	IsOfficial bool `json:"is_official"`
+	// Name is the name of the repository
+	Name string `json:"name"`
+	// IsAutomated indicates whether the result is automated.
+	//
+	// Deprecated: the "is_automated" field is deprecated and will always be "false".
+	IsAutomated bool `json:"is_automated"`
+	// Description is a textual description of the repository
+	Description string `json:"description"`
+}
+
+// SearchResults lists a collection search results returned from a registry
+type SearchResults struct {
+	// Query contains the query string that generated the search results
+	Query string `json:"query"`
+	// NumResults indicates the number of results the query returned
+	NumResults int `json:"num_results"`
+	// Results is a slice containing the actual results for the search
+	Results []SearchResult `json:"results"`
 }
 
 // DistributionInspect describes the result obtained from contacting the

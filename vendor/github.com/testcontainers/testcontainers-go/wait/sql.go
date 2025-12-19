@@ -10,25 +10,25 @@ import (
 )
 
 var (
-	_ Strategy        = (*waitForSQL)(nil)
-	_ StrategyTimeout = (*waitForSQL)(nil)
+	_ Strategy        = (*waitForSql)(nil)
+	_ StrategyTimeout = (*waitForSql)(nil)
 )
 
-const defaultForSQLQuery = "SELECT 1"
+const defaultForSqlQuery = "SELECT 1"
 
 // ForSQL constructs a new waitForSql strategy for the given driver
-func ForSQL(port nat.Port, driver string, url func(host string, port nat.Port) string) *waitForSQL {
-	return &waitForSQL{
+func ForSQL(port nat.Port, driver string, url func(host string, port nat.Port) string) *waitForSql {
+	return &waitForSql{
 		Port:           port,
 		URL:            url,
 		Driver:         driver,
 		startupTimeout: defaultStartupTimeout(),
 		PollInterval:   defaultPollInterval(),
-		query:          defaultForSQLQuery,
+		query:          defaultForSqlQuery,
 	}
 }
 
-type waitForSQL struct {
+type waitForSql struct {
 	timeout *time.Duration
 
 	URL            func(host string, port nat.Port) string
@@ -40,46 +40,31 @@ type waitForSQL struct {
 }
 
 // WithStartupTimeout can be used to change the default startup timeout
-func (w *waitForSQL) WithStartupTimeout(timeout time.Duration) *waitForSQL {
+func (w *waitForSql) WithStartupTimeout(timeout time.Duration) *waitForSql {
 	w.timeout = &timeout
 	return w
 }
 
 // WithPollInterval can be used to override the default polling interval of 100 milliseconds
-func (w *waitForSQL) WithPollInterval(pollInterval time.Duration) *waitForSQL {
+func (w *waitForSql) WithPollInterval(pollInterval time.Duration) *waitForSql {
 	w.PollInterval = pollInterval
 	return w
 }
 
 // WithQuery can be used to override the default query used in the strategy.
-func (w *waitForSQL) WithQuery(query string) *waitForSQL {
+func (w *waitForSql) WithQuery(query string) *waitForSql {
 	w.query = query
 	return w
 }
 
-func (w *waitForSQL) Timeout() *time.Duration {
+func (w *waitForSql) Timeout() *time.Duration {
 	return w.timeout
-}
-
-// String returns a human-readable description of the wait strategy.
-func (w *waitForSQL) String() string {
-	port := "default"
-	if w.Port != "" {
-		port = w.Port.Port()
-	}
-
-	query := ""
-	if w.query != defaultForSQLQuery {
-		query = fmt.Sprintf(" with query %q", w.query)
-	}
-
-	return fmt.Sprintf("SQL database on port %s using driver %q%s", port, w.Driver, query)
 }
 
 // WaitUntilReady repeatedly tries to run "SELECT 1" or user defined query on the given port using sql and driver.
 //
 // If it doesn't succeed until the timeout value which defaults to 60 seconds, it will return an error.
-func (w *waitForSQL) WaitUntilReady(ctx context.Context, target StrategyTarget) error {
+func (w *waitForSql) WaitUntilReady(ctx context.Context, target StrategyTarget) error {
 	timeout := defaultStartupTimeout()
 	if w.timeout != nil {
 		timeout = *w.timeout

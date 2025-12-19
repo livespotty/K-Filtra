@@ -6,22 +6,18 @@ define go_install
 endef
 
 $(GOBIN)/golangci-lint:
-	$(call go_install,github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.0.2)
+	$(call go_install,github.com/golangci/golangci-lint/cmd/golangci-lint@v1.55.2)
 
 $(GOBIN)/gotestsum:
 	$(call go_install,gotest.tools/gotestsum@latest)
 
-$(GOBIN)/mockery:
-	$(call go_install,github.com/vektra/mockery/v2@v2.53.4)
-
 .PHONY: install
-install: $(GOBIN)/golangci-lint $(GOBIN)/gotestsum $(GOBIN)/mockery
+install: $(GOBIN)/golangci-lint $(GOBIN)/gotestsum
 
 .PHONY: clean
 clean:
 	rm $(GOBIN)/golangci-lint
 	rm $(GOBIN)/gotestsum
-	rm $(GOBIN)/mockery
 
 .PHONY: dependencies-scan
 dependencies-scan:
@@ -30,11 +26,7 @@ dependencies-scan:
 
 .PHONY: lint
 lint: $(GOBIN)/golangci-lint
-	golangci-lint run --verbose -c $(ROOT_DIR)/.golangci.yml --fix
-
-.PHONY: generate
-generate: $(GOBIN)/mockery
-	go generate ./...
+	golangci-lint run --out-format=github-actions --path-prefix=. --verbose -c $(ROOT_DIR)/.golangci.yml --fix
 
 .PHONY: test-%
 test-%: $(GOBIN)/gotestsum
@@ -45,10 +37,8 @@ test-%: $(GOBIN)/gotestsum
 		--packages="./..." \
 		--junitfile TEST-unit.xml \
 		-- \
-		-v \
 		-coverprofile=coverage.out \
-		-timeout=30m \
-		-race
+		-timeout=30m
 
 .PHONY: tools
 tools:
@@ -57,9 +47,6 @@ tools:
 .PHONY: test-tools
 test-tools: $(GOBIN)/gotestsum
 
-.PHONY: tidy
-tidy:
+.PHONY: tools-tidy
+tools-tidy:
 	go mod tidy
-
-.PHONY: pre-commit
-pre-commit: generate tidy lint
