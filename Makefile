@@ -23,7 +23,7 @@ GOLANGCI_LINT = go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.63
 default: build
 
 test.race:
-	go test -v -race -count=1 -mod=vendor `go list ./...`
+	go test -v -race -count=1 -mod=vendor `go list -mod=vendor ./...`
 
 test:
 	go test -v -count=1 -mod=vendor `go list ./...`
