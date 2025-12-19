@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.59
 	github.com/aws/aws-sdk-go-v2/service/sts v1.33.14
 	github.com/cenkalti/backoff v1.1.0
-	github.com/docker/docker v20.10.24+incompatible
+	github.com/docker/docker v28.5.1+incompatible
 	github.com/docker/go-connections v0.6.0
 	github.com/elazarl/goproxy v0.0.0-20230808193330-2592e75ae04a
 	github.com/elazarl/goproxy/ext v0.0.0-20190711103511-473e67f1d7d2
@@ -31,7 +31,7 @@ require (
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.0.2
 	github.com/stretchr/testify v1.11.1
-	github.com/testcontainers/testcontainers-go v0.17.0
+	github.com/testcontainers/testcontainers-go v0.40.0
 	github.com/twmb/franz-go/pkg/kmsg v1.12.0
 	github.com/xdg-go/scram v1.1.2
 	golang.org/x/net v0.47.0
