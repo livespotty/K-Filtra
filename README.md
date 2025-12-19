@@ -52,6 +52,33 @@ The proxy will load all executable files found in the specified directory.
 
 See `examples/debug-filter` for a simple example of a filter plugin.
 
+### Vault Encryption Filter Plugin
+
+The Vault Encryption filter plugin provides end-to-end payload encryption using HashiCorp Vault's Transit Secret Engine. It automatically encrypts messages on `Produce` and decrypts them on `Fetch`.
+
+[Read more about the Vault Encryption Plugin](plugin/vault-encryption/README.md)
+
+#### Docker Usage
+You can use the pre-built Docker image configuration:
+
+1. Build the image:
+    ```bash
+    docker build -f Dockerfile.encrypt -t k-filtra-vault .
+    ```
+
+2. Run the proxy with Vault and Kafka:
+    ```bash
+    docker run --rm -it \
+      -e VAULT_ADDR="http://host.docker.internal:8200" \
+      -e VAULT_TOKEN="root" \
+      -p 9092:9092 \
+      k-filtra-vault \
+      server \
+      --bootstrap-server-mapping "host.docker.internal:9092,0.0.0.0:19092" \
+      --log-level debug
+    ```
+
+
 
 ### Supported Kafka versions
 Following table provides overview of supported Kafka versions (specified one and all previous Kafka versions).
