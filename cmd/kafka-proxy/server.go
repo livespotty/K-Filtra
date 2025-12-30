@@ -26,12 +26,12 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/go-plugin"
 	"github.com/livespotty/K-Filtra/pkg/apis"
 	localauth "github.com/livespotty/K-Filtra/plugin/local-auth/shared"
 	tokeninfo "github.com/livespotty/K-Filtra/plugin/token-info/shared"
 	tokenprovider "github.com/livespotty/K-Filtra/plugin/token-provider/shared"
-	"github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/go-plugin"
 
 	"github.com/livespotty/K-Filtra/pkg/registry"
 	// built-in plugins
@@ -101,6 +101,8 @@ func initFlags() {
 	Server.Flags().IntVar(&c.Proxy.ResponseBufferSize, "proxy-response-buffer-size", 4096, "Response buffer size pro tcp connection")
 
 	Server.Flags().StringVar(&c.Proxy.PluginDir, "plugin-dir", "", "Directory containing filter plugins")
+	Server.Flags().StringToStringVar(&c.Proxy.SNIMapping, "sni-mapping", map[string]string{}, "Mapping of SNI hostname to broker address")
+	Server.Flags().StringVar(&c.Proxy.SNIListenerAddress, "sni-listener-address", "", "Address to listen on for SNI-based routing")
 
 	Server.Flags().IntVar(&c.Proxy.ListenerReadBufferSize, "proxy-listener-read-buffer-size", 0, "Size of the operating system's receive buffer associated with the connection. If zero, system default is used")
 	Server.Flags().IntVar(&c.Proxy.ListenerWriteBufferSize, "proxy-listener-write-buffer-size", 0, "Sets the size of the operating system's transmit buffer associated with the connection. If zero, system default is used")
@@ -396,6 +398,9 @@ func Run(_ *cobra.Command, _ []string) {
 		}
 		connSrc, err := listeners.ListenInstances(c.Proxy.BootstrapServers)
 		if err != nil {
+			logrus.Fatal(err)
+		}
+		if err := listeners.ListenSNIInstance(); err != nil {
 			logrus.Fatal(err)
 		}
 

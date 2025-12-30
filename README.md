@@ -1,4 +1,4 @@
-## K-Filtra (kafka-proxy + filter plugins)
+## K-Filtra (kafka-proxy + filter plugins + dynamic routing)
 
 Kafka Proxy is a tool that allows a service to connect to Kafka brokers without having to deal with SASL/PLAIN authentication and SSL certificates.
 
@@ -8,6 +8,7 @@ K-Filtra is a tool that adds filter plugins to the Kafka Proxy. K-Filtra is a dr
 This is a fork of the [Kafka Proxy](https://github.com/grepplabs/kafka-proxy) with added filter plugins.
 K-Filtra filter can intercept and modify Kafka requests and responses.
 
+K-Filtra also supports dynamic routing of connections to different Kafka brokers based on the **SNI (Server Name Indication)** hostname or the **Common Name (CN)** of the client certificate. It enables a single listener port to route traffic to various backend brokers
 
 [![Build Status](https://github.com/livespotty/K-Filtra/actions/workflows/build.yaml/badge.svg)](https://github.com/livespotty/K-Filtra/actions/workflows/build.yaml)
 [![GHCR](https://img.shields.io/badge/ghcr-latest-blue.svg)](https://github.com/livespotty/K-Filtra/pkgs/container/k-filtra)
@@ -85,14 +86,9 @@ Following table provides overview of supported Kafka versions (specified one and
 As not every Kafka release adds new messages/versions which are relevant to the Kafka proxy, newer Kafka versions can also work.
 
 
-| Kafka proxy version | Kafka version |
-|---------------------|---------------|
-|                     | from 0.11.0   |
-| 0.2.9               | to 2.8.0      |
-| 0.3.1               | to 3.4.0      |
-| 0.3.11              | to 3.7.0      |
-| 0.3.12              | to 3.9.0      |
-| 0.4.2               | to 4.0.0      |
+| K-Filtra version | Kafka version |
+|---------------------|----------------------|
+| 0.0.3               | 4.0.0 and above      |
 
 ### Install binary release
 
@@ -100,11 +96,11 @@ As not every Kafka release adds new messages/versions which are relevant to the 
 
    Linux
 
-        curl -Ls https://github.com/livespotty/K-Filtra/releases/download/v0.0.1/kafka-proxy-v0.0.1-linux-amd64.tar.gz | tar xz
+        curl -Ls https://github.com/livespotty/K-Filtra/releases/download/v0.0.3/kafka-proxy-v0.0.3-linux-amd64.tar.gz | tar xz
 
    macOS
 
-        curl -Ls https://github.com/livespotty/K-Filtra/releases/download/v0.0.1/kafka-proxy-v0.0.1-darwin-amd64.tar.gz | tar xz
+        curl -Ls https://github.com/livespotty/K-Filtra/releases/download/v0.0.3/kafka-proxy-v0.0.3-darwin-amd64.tar.gz | tar xz
 
 2. Move the binary in to your PATH.
 
@@ -122,7 +118,7 @@ Docker images are available on [GitHub Container Registry](https://github.com/li
 
 You can launch a kafka-proxy container for trying it out with
 
-    docker run --rm -p 30001-30003:30001-30003 ghcr.io/livespotty/k-filtra:0.0.1 \
+    docker run --rm -p 30001-30003:30001-30003 ghcr.io/livespotty/k-filtra:0.0.3 \
               server \
             --bootstrap-server-mapping "localhost:19092,0.0.0.0:30001" \
             --bootstrap-server-mapping "localhost:29092,0.0.0.0:30002" \
@@ -141,7 +137,7 @@ Docker images with precompiled plugins located in `/opt/kafka-proxy/bin/` are ta
 
 You can launch a kafka-proxy container with auth-ldap plugin for trying it out with
 
-    docker run --rm -p 30001-30003:30001-30003 ghcr.io/livespotty/k-filtra:0.0.1-all \
+    docker run --rm -p 30001-30003:30001-30003 ghcr.io/livespotty/k-filtra:0.0.3-all \
                   server \
                 --bootstrap-server-mapping "localhost:19092,0.0.0.0:30001" \
                 --bootstrap-server-mapping "localhost:29092,0.0.0.0:30002" \
@@ -260,6 +256,8 @@ You can launch a kafka-proxy container with auth-ldap plugin for trying it out w
           --sasl-plugin-param stringArray                        Authentication plugin parameter
           --sasl-plugin-timeout duration                         Authentication timeout (default 10s)
           --sasl-username string                                 SASL user name
+          --sni-listener-address string                          Address to listen on for SNI-based routing
+          --sni-mapping stringToString                           Mapping of SNI hostname to broker address (default [])
           --tls-ca-chain-cert-file string                        PEM encoded CA's certificate file
           --tls-client-cert-file string                          PEM encoded file with client certificate
           --tls-client-key-file string                           PEM encoded file with private key for the client certificate
@@ -269,6 +267,90 @@ You can launch a kafka-proxy container with auth-ldap plugin for trying it out w
           --tls-refresh duration                                 Interval for refreshing client TLS certificates. If set to zero, the refresh watch is disabled
           --tls-same-client-cert-enable                          Use only when mutual TLS is enabled on proxy and broker. It controls whether a proxy validates if proxy client certificate exactly matches brokers client cert (tls-client-cert-file)
           --tls-system-cert-pool                                 Use system pool for root CAs
+
+### Dynamic Routing / SNI Routing
+
+K-Filtra supports dynamic routing of connections to different Kafka brokers based on the **SNI (Server Name Indication)** hostname or the **Common Name (CN)** of the client certificate. This allows a single entry point (listener port) to serve multiple backend brokers.
+
+Routing priority:
+1.  **SNI Hostname**: Matches the server name sent in the TLS ClientHello.
+2.  **Client Certificate CN**: If SNI matching fails, the Common Name from the client certificate is used.
+
+**Requirements**:
+*   Proxy TLS listener must be enabled (`--proxy-listener-tls-enable`).
+*   Client certificates must be provided if routing by CN.
+
+**Configuration**:
+*   `--sni-listener-address`: The address the proxy listens on for SNI-based routing (e.g., `0.0.0.0:443`).
+*   `--sni-mapping`: Mapping of SNI hostname or CN to target broker address (e.g., `client1.example.com=broker1:9092`).
+
+**Example**:
+
+```bash
+kafka-proxy server \
+  --proxy-listener-tls-enable \
+  --proxy-listener-cert-file server.crt \
+  --proxy-listener-key-file server.key \
+  --proxy-listener-ca-chain-cert-file ca.crt \
+  --sni-listener-address 0.0.0.0:9093 \
+  --sni-mapping client-a.com=broker-1:9092 \
+  --sni-mapping client-b.com=broker-2:9092 \
+  --bootstrap-server-mapping "broker-1:9092,0.0.0.0:30001" 
+```
+
+In this example:
+*   Connections with SNI `client-a.com` are routed to `broker-1:9092`.
+*   Connections with SNI `client-b.com` are routed to `broker-2:9092`.
+*   Standard listeners are still available via `--bootstrap-server-mapping`.
+
+#### CN Routing Requirements
+
+To route based on the **Common Name (CN)** of the client certificate, **Mutual TLS (mTLS)** must be configured.
+1.  Enable TLS listener: `--proxy-listener-tls-enable`
+2.  Provide CA to verify client certs: `--proxy-listener-ca-chain-cert-file <ca-file>`
+3.  Clients must be configured to send their certificate.
+
+**Example for CN Routing**:
+
+```bash
+kafka-proxy server \
+  --proxy-listener-tls-enable \
+  --proxy-listener-cert-file server.crt \
+  --proxy-listener-key-file server.key \
+  --proxy-listener-ca-chain-cert-file ca.crt \
+  --sni-listener-address 0.0.0.0:9093 \
+  --sni-mapping client-cn-1=broker-1:9092 \
+```
+
+### Hub and Spoke Model
+
+K-Filtra can be deployed in a **Hub and Spoke** architecture, where the proxy acts as a central **Hub** accepting traffic on a single port (e.g., 443) and routing it to multiple backend brokers (**Spokes**) based on the requested SNI hostname.
+
+In this mode, the proxy automatically **rewrites the metadata** returned by the brokers. If a broker's address matches a target in your `sni-mapping`, the proxy will rewrite the advertised listener given to the client to point back to the Hub's `sni-listener-address` with the corresponding SNI hostname.
+
+**"Pure Hub" Configuration**:
+You can run the proxy *only* with an SNI listener, without any dedicated per-broker ports (`--bootstrap-server-mapping` is optional if `--sni-listener-address` is set).
+
+**Example**:
+Proxy listens on `0.0.0.0:443` and routes to 3 internal brokers.
+
+```bash
+kafka-proxy server \
+  --proxy-listener-tls-enable \
+  --proxy-listener-cert-file hub.crt \
+  --proxy-listener-key-file hub.key \
+  --sni-listener-address 0.0.0.0:443 \
+  --sni-mapping broker1.hub.com=broker-1-internal:9092 \
+  --sni-mapping broker2.hub.com=broker-2-internal:9092 \
+  --sni-mapping broker3.hub.com=broker-3-internal:9092
+```
+
+**Client Configuration**:
+Clients configure `bootstrap.servers` to point to the Hub's SNI hostnames:
+```properties
+bootstrap.servers=broker1.hub.com:443,broker2.hub.com:443
+security.protocol=SSL
+```
 
 ### Usage example
 	
@@ -493,13 +575,13 @@ Sometimes it might be necessary to not only validate that the client certificate
 --proxy-listener-tls-required-client-subject-organizational-unit stringArray  Required client certificate subject organizational unit
 ```
 
-By setting `--proxy-listener-tls-client-cert-validate-subject true`, Kafka Proxy will inspect client certificate DN fields for the expected values set with the `--proxy-listener-tls-required-client-*` arguments. The matches are always exact and used together, fo all non empty values. For example, to allow a valid certificate for `country=DE` and `organization=grepplabs`, configure Kafka Proxy in the following way:
+By setting `--proxy-listener-tls-client-cert-validate-subject true`, Kafka Proxy will inspect client certificate DN fields for the expected values set with the `--proxy-listener-tls-required-client-*` arguments. The matches are always exact and used together, fo all non empty values. For example, to allow a valid certificate for `country=CA` and `organization=xyz`, configure Kafka Proxy in the following way:
 
 ```
     kafka-proxy server \
       --proxy-listener-tls-client-cert-validate-subject true \
-      --proxy-listener-tls-required-client-subject-country DE \
-      --proxy-listener-tls-required-client-subject-organization grepplabs
+      --proxy-listener-tls-required-client-subject-country CA \
+      --proxy-listener-tls-required-client-subject-organization xyz
 ```
 
 ### Kubernetes sidecar container example

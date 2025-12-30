@@ -308,21 +308,6 @@ func getFreePort() (int, error) {
 	return l.Addr().(*net.TCPAddr).Port, nil
 }
 
-// sendToKafka sends a Request and expects a Response (which it discards unless error)
-func sendToKafka(addr string, apiKey int16, apiVersion int16, correlationID int32, body []byte) error {
-	resp, err := sendAndReceiveKafka(addr, apiKey, apiVersion, correlationID, body)
-	if err != nil {
-		return err
-	}
-	// Check for error code in response?
-	// Generic Parse is hard without struct.
-	// But if we received bytes, we assume success for Produce unless we parse it.
-	// Producing usually returns [Length][CorrelationId][Topics...]
-	// We can trust the subsequent Fetch to verify.
-	_ = resp
-	return nil
-}
-
 // sendAndReceiveKafka handles the raw TCP framing
 func sendAndReceiveKafka(addr string, apiKey int16, apiVersion int16, correlationID int32, body []byte) ([]byte, error) {
 	conn, err := net.Dial("tcp", addr)
