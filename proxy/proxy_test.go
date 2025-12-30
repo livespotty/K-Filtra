@@ -482,3 +482,40 @@ func TestNextDynamicPort(t *testing.T) {
 		})
 	}
 }
+
+func TestNewListenersWithSNIMapping(t *testing.T) {
+	cfg := &config.Config{}
+	cfg.Proxy.SNIMapping = map[string]string{
+		"kafka.example.com": "192.168.1.1:9092",
+		"kafka.other.com":   "192.168.1.2:9092",
+	}
+	cfg.Proxy.SNIListenerAddress = "0.0.0.0:443"
+
+	l, err := NewListeners(cfg)
+	assert.NoError(t, err)
+	assert.NotNil(t, l)
+
+	assert.Equal(t, "kafka.example.com", l.brokerToSNIMapping["192.168.1.1:9092"])
+	assert.Equal(t, "kafka.other.com", l.brokerToSNIMapping["192.168.1.2:9092"])
+	assert.Equal(t, "0.0.0.0:443", l.sniListenerAddress)
+}
+
+func TestGetNetAddressMappingWithSNI(t *testing.T) {
+	listeners := &Listeners{
+		sniListenerAddress: "0.0.0.0:443",
+		brokerToSNIMapping: map[string]string{
+			"192.168.1.1:9092": "kafka.example.com",
+		},
+		disableDynamicListeners: true, // Disable dynamic listeners to avoid networking/errors when SNI fails
+	}
+
+	// Test successful mapping
+	host, port, err := listeners.GetNetAddressMapping("192.168.1.1", 9092, 1)
+	assert.NoError(t, err)
+	assert.Equal(t, "kafka.example.com", host)
+	assert.Equal(t, int32(443), port)
+
+	// Test mapping not found (and dynamic disabled)
+	_, _, err = listeners.GetNetAddressMapping("192.168.1.99", 9092, 2)
+	assert.Error(t, err)
+}
