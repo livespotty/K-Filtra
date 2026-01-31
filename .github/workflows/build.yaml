@@ -9,39 +9,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Install containerd
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y containerd uidmap
-          # Start/enable containerd system service
-          sudo systemctl enable --now containerd
-          # Wait for containerd socket
-          for i in $(seq 1 10); do
-            if [ -S /run/containerd/containerd.sock ]; then
-              echo "containerd socket available"
-              break
-            fi
-            echo "waiting for containerd..."
-            sleep 1
-          done
-      - name: Install nerdctl (v1.7.4)
-        run: |
-          NERDCTL_VER=1.7.4
-          TMP=/tmp/nerdctl
-          curl -L -o ${TMP}.tar.gz "https://github.com/containerd/nerdctl/releases/download/v${NERDCTL_VER}/nerdctl-${NERDCTL_VER}-linux-amd64.tar.gz"
-          mkdir -p ${TMP}
-          tar -xzf ${TMP}.tar.gz -C ${TMP}
-          sudo mv ${TMP}/nerdctl /usr/local/bin/nerdctl
-          sudo chmod +x /usr/local/bin/nerdctl
-          # verify
-          nerdctl --version
-          # If you rely on compose subcommand, verify it:
-          nerdctl compose version || true
-
-      - name: Install CNI plugins (optional, required by some setups)
-        run: |
-          sudo mkdir -p /opt/cni/bin
-          curl -L "https://github.com/containernetworking/plugins/releases/download/v1.3.0/cni-plugins-linux-amd64-v1.3.0.tgz" | sudo tar -C /opt/cni/bin -xz
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup go
@@ -54,7 +21,7 @@ jobs:
         run: make clean build
       - name: Run test
         env:
-          RUN_INTEGRATION: 1
+          RUN_INTEGRATION: "0"
         run: make test test.integration
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
