@@ -1,4 +1,4 @@
-## K-Filtra (kafka-proxy + filter plugins + dynamic routing)
+## K-Filtra (kafka-proxy + filter plugins + dynamic routing + Encryption/Decryption)
 
 Kafka Proxy is a tool that allows a service to connect to Kafka brokers without having to deal with SASL/PLAIN authentication and SSL certificates.
 
