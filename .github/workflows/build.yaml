@@ -15,6 +15,16 @@ jobs:
           sudo apt-get install -y containerd
           curl -L https://github.com/containerd/nerdctl/releases/download/v1.7.4/nerdctl-1.7.4-linux-amd64.tar.gz | tar xz
           sudo mv nerdctl /usr/local/bin/
+      - name: Install containerd rootless
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y uidmap
+          curl -sSfL https://raw.githubusercontent.com/containerd/containerd/main/script/setup/install-containernetworking.sh | sudo sh
+          curl -sSfL https://raw.githubusercontent.com/containerd/containerd/main/script/setup/install-containerd-rootless.sh | sh
+          containerd-rootless-setuptool.sh install
+          export PATH=$HOME/bin:$PATH
+          containerd-rootless-setuptool.sh check
+
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup go
