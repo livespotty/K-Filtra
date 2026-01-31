@@ -28,6 +28,9 @@ test.race:
 test:
 	go test -v -count=1 -mod=vendor `go list ./...`
 
+test.integration:
+	go test -v -race -count=1 -mod=vendor -tags=integration `go list -mod=vendor ./...`
+
 fmt:
 	go fmt $(GOPKGS)
 
@@ -114,7 +117,13 @@ plugin.unsecured-jwt-provider:
 plugin.oidc-provider:
 	CGO_ENABLED=0 go build -o build/oidc-provider $(BUILD_FLAGS) -ldflags "$(LDFLAGS)" cmd/plugin-oidc-provider/main.go
 
-all: build plugin.auth-user plugin.auth-ldap plugin.google-id-provider plugin.google-id-info plugin.unsecured-jwt-info plugin.unsecured-jwt-provider plugin.oidc-provider
+plugin.vault-encryption:
+	CGO_ENABLED=0 go build -mod=vendor -o build/vault-encryption $(BUILD_FLAGS) -ldflags "$(LDFLAGS)" plugin/vault-encryption/main.go
+
+plugin.gcp-kms-encryption:
+	CGO_ENABLED=0 go build -mod=vendor -o build/gcp-kms-encryption $(BUILD_FLAGS) -ldflags "$(LDFLAGS)" plugin/gcp-kms-encryption/main.go
+
+all: build plugin.auth-user plugin.auth-ldap plugin.google-id-provider plugin.google-id-info plugin.unsecured-jwt-info plugin.unsecured-jwt-provider plugin.oidc-provider plugin.vault-encryption plugin.gcp-kms-encryption
 
 clean:
 	rm -rf $(ROOT_DIR)/build

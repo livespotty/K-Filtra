@@ -1,4 +1,4 @@
-## K-Filtra (kafka-proxy + filter plugins + dynamic routing)
+## K-Filtra (kafka-proxy + filter plugins + dynamic routing + Encryption/Decryption)
 
 Kafka Proxy is a tool that allows a service to connect to Kafka brokers without having to deal with SASL/PLAIN authentication and SSL certificates.
 
@@ -74,6 +74,35 @@ You can use the pre-built Docker image configuration:
       -e VAULT_TOKEN="root" \
       -p 9092:9092 \
       k-filtra-vault \
+      server \
+      --bootstrap-server-mapping "host.docker.internal:9092,0.0.0.0:19092" \
+      --log-level debug
+    ```
+
+### GCP KMS Encryption Filter Plugin
+
+The GCP KMS Encryption filter plugin provides end-to-end payload encryption using Google Cloud Key Management Service (KMS). It automatically encrypts messages on `Produce` and decrypts them on `Fetch` using envelope encryption.
+
+[Read more about the GCP KMS Encryption Plugin](plugin/gcp-kms-encryption/README.md)
+
+#### Docker Usage
+You can use the provided Docker image configuration:
+
+1. Build the image:
+    ```bash
+    docker build -f Dockerfile.gcp-encrypt -t k-filtra-gcp .
+    ```
+
+2. Run the proxy with GCP KMS and Kafka:
+    ```bash
+    docker run --rm -it \
+      -e GCP_PROJECT_ID="your-project-id" \
+      -e GCP_LOCATION_ID="global" \
+      -e GCP_KEY_RING_ID="your-keyring" \
+      -e GOOGLE_APPLICATION_CREDENTIALS="/path/to/creds.json" \
+      -v /path/to/creds.json:/path/to/creds.json \
+      -p 9092:9092 \
+      k-filtra-gcp \
       server \
       --bootstrap-server-mapping "host.docker.internal:9092,0.0.0.0:19092" \
       --log-level debug
