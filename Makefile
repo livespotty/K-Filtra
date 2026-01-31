@@ -28,6 +28,9 @@ test.race:
 test:
 	go test -v -count=1 -mod=vendor `go list ./...`
 
+test.integration:
+	go test -v -race -count=1 -mod=vendor -tags=integration `go list -mod=vendor ./...`
+
 fmt:
 	go fmt $(GOPKGS)
 
