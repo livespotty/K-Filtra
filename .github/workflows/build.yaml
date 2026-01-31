@@ -9,6 +9,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Install nerdctl
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y containerd
+          curl -L https://github.com/containerd/nerdctl/releases/download/v1.7.4/nerdctl-1.7.4-linux-amd64.tar.gz | tar xz
+          sudo mv nerdctl /usr/local/bin/
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup go
