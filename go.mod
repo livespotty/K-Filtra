@@ -23,7 +23,7 @@ require (
 	github.com/hashicorp/go-plugin v1.6.3
 	github.com/hashicorp/vault/api v1.22.0
 	github.com/jcmturner/gofork v1.7.6
-	github.com/jcmturner/gokrb5/v8 v8.4.3
+	github.com/jcmturner/gokrb5/v8 v8.4.4
 	github.com/oklog/run v1.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.16.0
@@ -133,6 +133,7 @@ require (
 	github.com/spf13/jwalterweatherman v0.0.0-20180109140146-7c0cea34c8ec // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
+	github.com/testcontainers/testcontainers-go/modules/kafka v0.31.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
@@ -150,6 +151,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.39.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.9.0 // indirect
 	golang.org/x/crypto v0.45.0 // indirect
+	golang.org/x/mod v0.29.0 // indirect
 	golang.org/x/sync v0.18.0 // indirect
 	golang.org/x/sys v0.39.0 // indirect
 	golang.org/x/text v0.31.0 // indirect

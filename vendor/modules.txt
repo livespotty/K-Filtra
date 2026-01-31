@@ -400,7 +400,7 @@ github.com/jcmturner/dnsutils/v2
 ## explicit; go 1.7
 github.com/jcmturner/gofork/encoding/asn1
 github.com/jcmturner/gofork/x/crypto/pbkdf2
-# github.com/jcmturner/gokrb5/v8 v8.4.3
+# github.com/jcmturner/gokrb5/v8 v8.4.4
 ## explicit; go 1.16
 github.com/jcmturner/gokrb5/v8/asn1tools
 github.com/jcmturner/gokrb5/v8/client
@@ -597,6 +597,9 @@ github.com/testcontainers/testcontainers-go/internal/core
 github.com/testcontainers/testcontainers-go/internal/core/network
 github.com/testcontainers/testcontainers-go/network
 github.com/testcontainers/testcontainers-go/wait
+# github.com/testcontainers/testcontainers-go/modules/kafka v0.31.0
+## explicit; go 1.21
+github.com/testcontainers/testcontainers-go/modules/kafka
 # github.com/tklauser/go-sysconf v0.3.12
 ## explicit; go 1.13
 github.com/tklauser/go-sysconf
@@ -686,6 +689,9 @@ golang.org/x/crypto/pbkdf2
 golang.org/x/crypto/scrypt
 golang.org/x/crypto/ssh
 golang.org/x/crypto/ssh/internal/bcrypt_pbkdf
+# golang.org/x/mod v0.29.0
+## explicit; go 1.24.0
+golang.org/x/mod/semver
 # golang.org/x/net v0.47.0
 ## explicit; go 1.24.0
 golang.org/x/net/context

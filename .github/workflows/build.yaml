@@ -26,6 +26,8 @@ jobs:
       - name: Run build
         run: make clean build
       - name: Run test
+        env:
+          RUN_INTEGRATION: "1"
         run: make test.race
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2

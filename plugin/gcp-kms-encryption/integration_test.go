@@ -23,8 +23,8 @@ import (
 // TestGcpKmsEncryptionFilter_Integration runs against a Mock KMS server AND a REAL Kafka instance.
 // It requires `nerdctl` to be installed and available in PATH.
 func TestGcpKmsEncryptionFilter_Integration(t *testing.T) {
-	if os.Getenv("SKIP_INTEGRATION") != "" {
-		t.Skip("Skipping integration test")
+	if os.Getenv("RUN_INTEGRATION") != "1" {
+		t.Skip("integration tests disabled")
 	}
 
 	ctx := context.Background()

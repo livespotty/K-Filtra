@@ -26,6 +26,10 @@ import (
 // It requires VAULT_ADDR and VAULT_TOKEN to be set.
 // It spins up Kafka/Zookeeper using Docker.
 func TestVaultEncryptionFilter_Integration(t *testing.T) {
+	if os.Getenv("RUN_INTEGRATION") != "1" {
+		t.Skip("integration tests disabled")
+	}
+
 	vaultAddr := os.Getenv("VAULT_ADDR")
 	vaultToken := os.Getenv("VAULT_TOKEN")
 
