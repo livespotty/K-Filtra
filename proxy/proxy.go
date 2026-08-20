@@ -36,6 +36,11 @@ type Listeners struct {
 
 	brokerToListenerConfig map[string]*ListenerConfig
 	lock                   sync.RWMutex
+
+	sniMapping         map[string]string
+	brokerToSNIMapping map[string]string
+	sniListenerAddress string
+	tlsConfig          *tls.Config
 }
 
 func NewListeners(cfg *config.Config) (*Listeners, error) {
@@ -66,6 +71,12 @@ func NewListeners(cfg *config.Config) (*Listeners, error) {
 		return nil, err
 	}
 
+	// Create reverse mapping for SNI/Hub-Spoke
+	brokerToSNIMapping := make(map[string]string)
+	for sni, broker := range cfg.Proxy.SNIMapping {
+		brokerToSNIMapping[broker] = sni
+	}
+
 	return &Listeners{
 		defaultListenerIP:         cfg.Proxy.DefaultListenerIP,
 		dynamicAdvertisedListener: cfg.Proxy.DynamicAdvertisedListener,
@@ -78,7 +89,86 @@ func NewListeners(cfg *config.Config) (*Listeners, error) {
 		dynamicSequentialMinPort:  cfg.Proxy.DynamicSequentialMinPort,
 		currentDynamicPortCounter: 0,
 		dynamicSequentialMaxPorts: cfg.Proxy.DynamicSequentialMaxPorts,
+		sniMapping:                cfg.Proxy.SNIMapping,
+		brokerToSNIMapping:        brokerToSNIMapping,
+		sniListenerAddress:        cfg.Proxy.SNIListenerAddress,
+		tlsConfig:                 tlsConfig,
 	}, nil
+}
+
+func (p *Listeners) ListenSNIInstance() error {
+	if p.sniListenerAddress == "" {
+		return nil
+	}
+	if p.tlsConfig == nil {
+		return fmt.Errorf("SNI routing requires TLS to be enabled")
+	}
+
+	l, err := tls.Listen("tcp", p.sniListenerAddress, p.tlsConfig)
+	if err != nil {
+		return err
+	}
+
+	logrus.Infof("Starting SNI listener on %s", p.sniListenerAddress)
+
+	go withRecover(func() {
+		for {
+			c, err := l.Accept()
+			if err != nil {
+				logrus.Infof("Error in accept for SNI listener on %s: %v", p.sniListenerAddress, err)
+				l.Close()
+				return
+			}
+			go p.handleSNIConnection(c)
+		}
+	})
+	return nil
+}
+
+func (p *Listeners) handleSNIConnection(c net.Conn) {
+	tlsConn, ok := c.(*tls.Conn)
+	if !ok {
+		// Should not happen as we used tls.Listen
+		logrus.Error("SNI listener accepted non-TLS connection")
+		c.Close()
+		return
+	}
+
+	// Force handshake to get SNI and Peer Certificates
+	if err := tlsConn.Handshake(); err != nil {
+		logrus.Infof("SNI listener handshake failed: %v", err)
+		c.Close()
+		return
+	}
+
+	state := tlsConn.ConnectionState()
+	serverName := state.ServerName
+	var commonName string
+	if len(state.PeerCertificates) > 0 {
+		commonName = state.PeerCertificates[0].Subject.CommonName
+	}
+
+	brokerAddress := ""
+	// Priority: SNI -> CN
+	if target, ok := p.sniMapping[serverName]; ok {
+		brokerAddress = target
+	} else if target, ok := p.sniMapping[commonName]; ok {
+		brokerAddress = target
+	}
+
+	if brokerAddress == "" {
+		logrus.Warnf("No mapping found for SNI: %s, CN: %s", serverName, commonName)
+		c.Close()
+		return
+	}
+
+	if tcpConn, ok := c.(*net.TCPConn); ok {
+		if err := p.tcpConnOptions.setTCPConnOptions(tcpConn); err != nil {
+			logrus.Infof("WARNING: Error while setting TCP options for accepted connection on %s: %v", p.sniListenerAddress, err)
+		}
+	}
+	logrus.Infof("New SNI/CN connection SNI=%s CN=%s -> %s", serverName, commonName, brokerAddress)
+	p.connSrc <- Conn{BrokerAddress: brokerAddress, LocalConnection: c}
 }
 
 func getBrokerToListenerConfig(cfg *config.Config) (map[string]*ListenerConfig, error) {
@@ -137,6 +227,20 @@ func (p *Listeners) GetNetAddressMapping(brokerHost string, brokerPort int32, br
 		logrus.Debugf("Address mappings broker=%s, listener=%s, advertised=%s, brokerId=%d", listenerConfig.GetBrokerAddress(), listenerConfig.ListenerAddress, listenerConfig.AdvertisedAddress, brokerId)
 		return util.SplitHostPort(listenerConfig.AdvertisedAddress)
 	}
+
+	// Check if this broker address maps to an SNI hostname
+	if sniHostname, ok := p.brokerToSNIMapping[brokerAddress]; ok {
+		// Found reverse mapping!
+		if p.sniListenerAddress != "" {
+			_, portStr, err := net.SplitHostPort(p.sniListenerAddress)
+			if err == nil {
+				port, _ := strconv.Atoi(portStr)
+				logrus.Debugf("SNI Address mapping broker=%s -> sni=%s:%d", brokerAddress, sniHostname, port)
+				return sniHostname, int32(port), nil
+			}
+		}
+	}
+
 	if !p.disableDynamicListeners {
 		logrus.Infof("Starting dynamic listener for broker %s", brokerAddress)
 		return p.ListenDynamicInstance(brokerAddress, brokerId)

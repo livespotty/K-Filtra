@@ -24,6 +24,7 @@ out/
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+*.log
 
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
 *.o

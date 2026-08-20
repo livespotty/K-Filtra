@@ -1,3 +1,6 @@
+//go:build integration
+// +build integration
+
 package main
 
 import (
@@ -26,6 +29,10 @@ import (
 // It requires VAULT_ADDR and VAULT_TOKEN to be set.
 // It spins up Kafka/Zookeeper using Docker.
 func TestVaultEncryptionFilter_Integration(t *testing.T) {
+	if os.Getenv("RUN_INTEGRATION") != "1" {
+		t.Skip("integration tests disabled")
+	}
+
 	vaultAddr := os.Getenv("VAULT_ADDR")
 	vaultToken := os.Getenv("VAULT_TOKEN")
 
@@ -306,21 +313,6 @@ func getFreePort() (int, error) {
 	}
 	defer l.Close()
 	return l.Addr().(*net.TCPAddr).Port, nil
-}
-
-// sendToKafka sends a Request and expects a Response (which it discards unless error)
-func sendToKafka(addr string, apiKey int16, apiVersion int16, correlationID int32, body []byte) error {
-	resp, err := sendAndReceiveKafka(addr, apiKey, apiVersion, correlationID, body)
-	if err != nil {
-		return err
-	}
-	// Check for error code in response?
-	// Generic Parse is hard without struct.
-	// But if we received bytes, we assume success for Produce unless we parse it.
-	// Producing usually returns [Length][CorrelationId][Topics...]
-	// We can trust the subsequent Fetch to verify.
-	_ = resp
-	return nil
 }
 
 // sendAndReceiveKafka handles the raw TCP framing

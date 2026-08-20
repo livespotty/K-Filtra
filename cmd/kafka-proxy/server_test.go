@@ -339,3 +339,60 @@ func TestPluginDirDefault(t *testing.T) {
 	a.Nil(err)
 	a.Equal("", c.Proxy.PluginDir)
 }
+
+func TestSNIMappingFromFlags(t *testing.T) {
+	setupBootstrapServersMappingTest()
+
+	args := []string{"cobra.test",
+		"--sni-mapping", "kafka.example.com=192.168.1.1:9092",
+		"--sni-mapping", "kafka.other.com=192.168.1.2:9092",
+		"--bootstrap-server-mapping", "127.0.0.1:9092,127.0.0.1:9093",
+	}
+
+	_ = Server.ParseFlags(args)
+	err := Server.PreRunE(nil, args)
+	a := assert.New(t)
+	a.Nil(err)
+	a.Len(c.Proxy.SNIMapping, 2)
+	a.Equal("192.168.1.1:9092", c.Proxy.SNIMapping["kafka.example.com"])
+	a.Equal("192.168.1.2:9092", c.Proxy.SNIMapping["kafka.other.com"])
+}
+
+func TestSNIListenerConfigValid(t *testing.T) {
+	setupBootstrapServersMappingTest()
+
+	args := []string{"cobra.test",
+		"--sni-listener-address", "0.0.0.0:443",
+		"--sni-mapping", "kafka.example.com=192.168.1.1:9092",
+		"--proxy-listener-tls-enable",
+		"--proxy-listener-cert-file", "server.crt",
+		"--proxy-listener-key-file", "server.key",
+	}
+
+	_ = Server.ParseFlags(args)
+	err := Server.PreRunE(nil, args)
+	a := assert.New(t)
+	a.Nil(err)
+	a.Equal("0.0.0.0:443", c.Proxy.SNIListenerAddress)
+	a.Len(c.Proxy.SNIMapping, 1)
+}
+
+func TestSNIListenerMissingTLS(t *testing.T) {
+	args := []string{"cobra.test",
+		"--sni-listener-address", "0.0.0.0:443",
+		"--sni-mapping", "kafka.example.com=192.168.1.1:9092",
+	}
+
+	serverPreRunFailure(t, args, "Proxy TLS must be enabled when SNIListenerAddress is configured")
+}
+
+func TestSNIListenerMissingMapping(t *testing.T) {
+	args := []string{"cobra.test",
+		"--sni-listener-address", "0.0.0.0:443",
+		"--proxy-listener-tls-enable",
+		"--proxy-listener-cert-file", "server.crt",
+		"--proxy-listener-key-file", "server.key",
+	}
+
+	serverPreRunFailure(t, args, "SNIMapping must not be empty when SNIListenerAddress is configured")
+}

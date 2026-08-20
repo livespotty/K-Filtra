@@ -103,7 +103,9 @@ type Config struct {
 				Subjects []string
 			}
 		}
-		PluginDir string
+		PluginDir          string
+		SNIMapping         map[string]string
+		SNIListenerAddress string
 	}
 	Auth struct {
 		Local struct {
@@ -361,8 +363,8 @@ func (c *Config) Validate() error {
 		return errors.New("MaxOpenRequests must be greater than 0")
 	}
 	// proxy
-	if len(c.Proxy.BootstrapServers) == 0 {
-		return errors.New("list of bootstrap-server-mapping must not be empty")
+	if len(c.Proxy.BootstrapServers) == 0 && c.Proxy.SNIListenerAddress == "" {
+		return errors.New("list of bootstrap-server-mapping must not be empty unless sni-listener-address is configured")
 	}
 	if c.Proxy.DefaultListenerIP == "" {
 		return errors.New("DefaultListenerIP must not be empty")
@@ -452,5 +454,15 @@ func (c *Config) Validate() error {
 			c.Proxy.DynamicSequentialMaxPorts = uint16(65536 - uint32(c.Proxy.DynamicSequentialMinPort))
 		}
 	}
+
+	if c.Proxy.SNIListenerAddress != "" {
+		if !c.Proxy.TLS.Enable {
+			return errors.New("Proxy TLS must be enabled when SNIListenerAddress is configured")
+		}
+		if len(c.Proxy.SNIMapping) == 0 {
+			return errors.New("SNIMapping must not be empty when SNIListenerAddress is configured")
+		}
+	}
+
 	return nil
 }
