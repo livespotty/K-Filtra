@@ -13,6 +13,7 @@ K-Filtra also supports dynamic routing of connections to different Kafka brokers
 [![Build Status](https://github.com/livespotty/K-Filtra/actions/workflows/build.yaml/badge.svg)](https://github.com/livespotty/K-Filtra/actions/workflows/build.yaml)
 [![GHCR](https://img.shields.io/badge/ghcr-latest-blue.svg)](https://github.com/livespotty/K-Filtra/pkgs/container/k-filtra)
 [![Release](https://img.shields.io/github/v/release/livespotty/K-Filtra)](https://github.com/livespotty/K-Filtra/releases)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Flivespotty%2FK-Filtra.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Flivespotty%2FK-Filtra?ref=badge_shield)
 
 
 The Kafka Proxy is based on idea of [Cloud SQL Proxy](https://github.com/GoogleCloudPlatform/cloudsql-proxy). 
@@ -918,3 +919,7 @@ Use localhost:19092 as bootstrap servers
 
 * [Cloud SQL Proxy](https://github.com/GoogleCloudPlatform/cloudsql-proxy)
 * [Sarama](https://github.com/Shopify/sarama)
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Flivespotty%2FK-Filtra.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Flivespotty%2FK-Filtra?ref=badge_large)
