@@ -50,9 +50,10 @@ dario.cat/mergo
 ## explicit; go 1.16
 github.com/Azure/go-ansiterm
 github.com/Azure/go-ansiterm/winterm
-# github.com/Azure/go-ntlmssp v0.0.0-20200615164410-66371956d46c
-## explicit
+# github.com/Azure/go-ntlmssp v0.1.1
+## explicit; go 1.24
 github.com/Azure/go-ntlmssp
+github.com/Azure/go-ntlmssp/internal/md4
 # github.com/Microsoft/go-winio v0.6.2
 ## explicit; go 1.21
 github.com/Microsoft/go-winio
